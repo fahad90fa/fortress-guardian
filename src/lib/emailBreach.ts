@@ -47,26 +47,13 @@ export function isValidEmail(e: string): boolean {
   return EMAIL_RE.test(e.trim()) && e.length <= 254;
 }
 
-export async function checkEmailBreaches(email: string): Promise<EmailBreachReport> {
+export async function checkEmailBreaches(email: string, signal?: AbortSignal): Promise<EmailBreachReport> {
   const e = email.trim().toLowerCase();
   if (!isValidEmail(e)) throw new Error("Invalid email address");
 
-  const { data, error } = await supabase.functions.invoke("email-breach-lookup", {
-    body: null,
-    method: "GET",
-    // Pass email as query param via the URL — invoke supports this via headers/path workaround:
-  });
-
-  // supabase.functions.invoke doesn't expose query params directly; build URL manually.
-  if (error || !data) {
-    return await fetchViaUrl(e);
-  }
-  return data as EmailBreachReport;
-}
-
-async function fetchViaUrl(email: string): Promise<EmailBreachReport> {
-  const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/email-breach-lookup?email=${encodeURIComponent(email)}`;
+  const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/email-breach-lookup?email=${encodeURIComponent(e)}`;
   const res = await fetch(url, {
+    signal,
     headers: {
       apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
@@ -74,7 +61,9 @@ async function fetchViaUrl(email: string): Promise<EmailBreachReport> {
   });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    throw new Error(`Lookup failed (${res.status}) ${body.slice(0, 120)}`);
+    let msg = `Lookup failed (${res.status})`;
+    try { const j = JSON.parse(body); if (j.error) msg = j.error; } catch { /* ignore */ }
+    throw new Error(msg);
   }
-  return res.json();
+  return res.json() as Promise<EmailBreachReport>;
 }
