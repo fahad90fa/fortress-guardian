@@ -6,7 +6,7 @@
  * Important: NO legitimate API exposes actual leaked password values —
  * only the data classes/types that were exposed in each breach.
  */
-import { supabase } from "@/integrations/supabase/client";
+
 
 export interface BreachDetail {
   breachID: string;
