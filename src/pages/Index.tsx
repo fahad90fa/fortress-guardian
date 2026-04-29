@@ -1,5 +1,6 @@
 import { Shield, Lock } from "lucide-react";
 import { PasswordChecker } from "@/components/PasswordChecker";
+import { EmailBreachLookup } from "@/components/EmailBreachLookup";
 
 const Index = () => {
   return (
@@ -19,6 +20,10 @@ const Index = () => {
       </header>
 
       <PasswordChecker />
+
+      <div className="max-w-3xl mx-auto mt-6">
+        <EmailBreachLookup />
+      </div>
 
       <footer className="max-w-3xl mx-auto mt-12 text-center text-xs text-muted-foreground space-y-1">
         <p className="flex items-center justify-center gap-1.5">
