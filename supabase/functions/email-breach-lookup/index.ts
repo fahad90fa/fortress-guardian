@@ -1,6 +1,10 @@
 // Edge function: proxies XposedOrNot free breach API to bypass browser CORS.
 // Privacy: only the email is forwarded to api.xposedornot.com over HTTPS.
-import { corsHeaders } from "@supabase/supabase-js/cors";
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+};
 
 const BASE = "https://api.xposedornot.com/v1";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
